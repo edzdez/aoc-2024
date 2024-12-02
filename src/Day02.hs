@@ -23,6 +23,4 @@ part1 :: [[Int]] -> Int
 part1 = length . filter validReport
 
 part2 :: [[Int]] -> Int
-part2 = length . filter validWithRemoval
-  where
-    validWithRemoval report = validReport report || any validReport (removeOne report)
+part2 = length . filter (\r -> validReport r || any validReport (removeOne r))
