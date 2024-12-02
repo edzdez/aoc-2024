@@ -1,4 +1,4 @@
-module Day02 where
+module Day02 (parseInput, part1, part2) where
 
 import Data.List
 import Data.List.Split
