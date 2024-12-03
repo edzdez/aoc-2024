@@ -3,7 +3,7 @@ module Day03 (parseInput, part1, part2) where
 import Text.Regex.TDFA
 
 mulRegex :: String
-mulRegex = "mul\\(([1-9][0-9]{0,2}),([1-9][0-9]{0,2})\\)"
+mulRegex = "mul\\(([[:digit:]]{1,3}),([[:digit:]]{1,3})\\)"
 
 doRegex :: String
 doRegex = "do\\(\\)"
