@@ -24,7 +24,8 @@ isDont _ = False
 parseInput :: String -> [Instruction]
 parseInput input = map parsePattern matches
   where
-    matches = input =~ (mulRegex ++ "|" ++ doRegex ++ "|" ++ dontRegex) :: [[String]]
+    fullPattern = mulRegex ++ "|" ++ doRegex ++ "|" ++ dontRegex
+    matches = input =~ fullPattern :: [[String]]
 
     parsePattern (x : xs)
       | x == "do()" = Do
