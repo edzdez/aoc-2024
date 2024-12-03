@@ -9,7 +9,7 @@ parseInput = map (map read . splitOn " ") . lines
 validReport :: [Int] -> Bool
 validReport report = diffsWithin 1 3 pairs || diffsWithin (-3) (-1) pairs
   where
-    pairs = zip report (tail report)
+    pairs = zip <*> tail $ report
 
 diffsWithin :: Int -> Int -> [(Int, Int)] -> Bool
 diffsWithin lo hi = all (\(x, y) -> lo <= y - x && y - x <= hi)
