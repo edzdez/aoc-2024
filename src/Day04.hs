@@ -16,7 +16,7 @@ countXmasInLine = length . filter (== "XMAS") . divvy 4 1
 takeDiagonal :: M.Matrix a -> Int -> [a]
 takeDiagonal mat i =
   let n = M.nrows mat
-   in zipWith (\a b -> M.getElem a b mat) [1 .. n - i + 1] (enumFrom i)
+   in zipWith (curry (mat M.!)) [1 .. n - i + 1] (enumFrom i)
 
 diagonals :: M.Matrix a -> [[a]]
 diagonals mat =
