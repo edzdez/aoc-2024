@@ -7,7 +7,7 @@ parseInput :: String -> [[Int]]
 parseInput = map (map read . splitOn " ") . lines
 
 validReport :: [Int] -> Bool
-validReport report = diffsWithin 1 3 pairs || diffsWithin (-3) (-1) pairs
+validReport report = (||) <$> diffsWithin 1 3 <*> diffsWithin (-3) (-1) $ pairs
   where
     pairs = zip <*> tail $ report
 
