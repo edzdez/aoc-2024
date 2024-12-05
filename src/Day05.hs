@@ -13,8 +13,18 @@ type Graph = M.Map Int (S.Set Int)
 parseInput :: String -> (Graph, [Update])
 parseInput input =
   let orderUpdates = splitWhen null $ lines input
-      order = map (\line -> let xs = splitOn "|" line in (read $ head xs, read $ xs !! 1)) $ head orderUpdates
-      orderMap = foldr (\(x, y) -> M.alter (Just . maybe (S.singleton x) (S.insert x)) y) M.empty order
+      order =
+        [ let xs = splitOn "|" line
+           in (read $ head xs, read $ xs !! 1)
+          | line <- head orderUpdates
+        ]
+      orderMap =
+        foldr
+          ( \(x, y) ->
+              M.alter (Just . maybe (S.singleton x) (S.insert x)) y
+          )
+          M.empty
+          order
       updates = map (map read . splitOn ",") $ orderUpdates !! 1
    in (orderMap, updates)
 
