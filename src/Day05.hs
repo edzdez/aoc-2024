@@ -24,13 +24,15 @@ cmp adj a b
   | a `elem` fromMaybe S.empty (M.lookup b adj) = LT
   | otherwise = EQ
 
+median :: [a] -> a
+median xs = xs !! (length xs `div` 2)
+
 part1 :: (Graph, [Update]) -> Int
 part1 (order, updates) =
   let validUpdates = filter ((==) <*> L.sortBy (cmp order)) updates
-   in sum $ map (\xs -> xs !! (length xs `div` 2)) validUpdates
+   in sum $ map median validUpdates
 
 part2 :: (Graph, [Update]) -> Int
 part2 (order, updates) =
   let invalidUpdates = filter ((/=) <*> L.sortBy (cmp order)) updates
-      reorderedUpdates = map (L.sortBy $ cmp order) invalidUpdates
-   in sum $ map (\xs -> xs !! (length xs `div` 2)) reorderedUpdates
+   in sum [median $ L.sortBy (cmp order) xs | xs <- invalidUpdates]
