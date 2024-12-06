@@ -1,11 +1,7 @@
-module Day06 where
+module Day06 (parseInput, part1, part2) where
 
-import Control.Monad qualified as M
 import Data.List qualified as L
-import Data.Map.Strict qualified as M
-import Data.Maybe (fromMaybe, isNothing)
 import Data.Set qualified as S
-import Debug.Trace
 
 type Point = (Int, Int)
 
@@ -49,15 +45,15 @@ addObstacle p (obstacles, dim) = (S.insert p obstacles, dim)
 inBounds :: Point -> Point -> Bool
 inBounds (x, y) (m, n) = 1 <= x && x <= m && 1 <= y && y <= n
 
-simulate' :: Graph -> Point -> Direction -> S.Set (Point, Direction) -> Either (Point, Direction, S.Set (Point, Direction)) Int
+simulate' :: Graph -> Point -> Direction -> S.Set (Point, Direction) -> Maybe (Point, Direction, S.Set (Point, Direction))
 simulate' (obstacles, (m, n)) (x, y) dir visited
-  | not $ inBounds (x, y) (m, n) = Right 0
-  | ((x, y), dir) `S.member` visited = Right 1
+  | not $ inBounds (x, y) (m, n) = Nothing
+  | ((x, y), dir) `S.member` visited = Nothing
   | otherwise =
       let isObstacle = next (x, y) dir `S.member` obstacles
           dir' = if isObstacle then rotate90 dir else dir
           nxt = next (x, y) dir'
-       in do Left (nxt, dir', S.insert ((x, y), dir) visited)
+       in Just (nxt, dir', S.insert ((x, y), dir) visited)
 
 simulate :: Graph -> Point -> Direction -> [(Point, Direction)]
 simulate = simulateAux [] S.empty
@@ -65,18 +61,31 @@ simulate = simulateAux [] S.empty
     simulateAux acc visited graph guard dir =
       let nxt = simulate' graph guard dir visited
        in case nxt of
-            Right 0 -> acc
-            Right 1 -> []
-            Left (guard', dir', visited') -> simulateAux ((guard, dir) : acc) visited' graph guard' dir'
-            _ -> undefined
+            Nothing -> acc
+            Just (guard', dir', visited') -> simulateAux ((guard, dir) : acc) visited' graph guard' dir'
+
+hasCycle :: Point -> Graph -> Bool
+hasCycle guard (obstacles, (m, n)) = hasCycle' guard North S.empty
+  where
+    hasCycle' :: Point -> Direction -> S.Set (Point, Direction) -> Bool
+    hasCycle' point dir visited
+      | (point, dir) `S.member` visited = True
+      | otherwise =
+          let nextBunch = scanl (\_ -> flip next dir) point nextBunch
+              nextObstacle =
+                last $
+                  takeWhile
+                    ((&&) <$> flip inBounds (m, n) <*> flip S.notMember obstacles)
+                    nextBunch
+              dir' = rotate90 dir
+              visited' = S.insert (point, dir) visited
+           in next nextObstacle dir `S.member` obstacles
+                && hasCycle' nextObstacle dir' visited'
 
 part1 :: State -> Int
 part1 (graph, guard) = S.size $ S.fromList $ map fst $ simulate graph guard North
 
-foo :: State -> S.Set Point
-foo (graph, guard) = S.filter (\p -> null $ simulate (addObstacle p graph) guard North) $ S.fromList $ map fst $ simulate graph guard North
-
 part2 :: State -> Int
 part2 (graph, guard) =
   let reach = S.fromList $ map fst $ simulate graph guard North
-   in length $ S.filter (\p -> null $ simulate (addObstacle p graph) guard North) reach
+   in length $ S.filter (hasCycle guard . flip addObstacle graph) $ S.delete guard reach
