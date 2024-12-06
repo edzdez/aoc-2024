@@ -64,7 +64,8 @@ library
         Day02,
         Day03,
         Day04,
-        Day05
+        Day05,
+        Day06
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -76,6 +77,8 @@ library
     build-depends:
         base ^>=4.17.2.1,
         containers,
+        unordered-containers,
+        hashable,
         split,
         regex-tdfa,
         vector,
