@@ -30,8 +30,8 @@ parseInput input =
 
 cmp :: Graph -> Int -> Int -> Ordering
 cmp adj a b
-  | b `elem` fromMaybe S.empty (M.lookup a adj) = GT
-  | a `elem` fromMaybe S.empty (M.lookup b adj) = LT
+  | b `S.member` fromMaybe S.empty (M.lookup a adj) = GT
+  | a `S.member` fromMaybe S.empty (M.lookup b adj) = LT
   | otherwise = EQ
 
 median :: [a] -> a
