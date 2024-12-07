@@ -1,4 +1,4 @@
-module Day07 where
+module Day07 (parseInput, part1, part2) where
 
 import Data.List.Split
 
@@ -13,27 +13,21 @@ parseInput =
     )
     . lines
 
-possiblyTrue :: Test -> Bool
-possiblyTrue (res, ops) = possiblyTrue' 0 ops
+possiblyTrue :: Bool -> Test -> Bool
+possiblyTrue p2 (res, nums) = possiblyTrue' res $ reverse nums
   where
-    possiblyTrue' acc [] = acc == res
-    possiblyTrue' acc (x : xs) = (||) <$> possiblyTrue' (acc + x) <*> possiblyTrue' (acc * x) $ xs
-
-possiblyTrue2 :: Test -> Bool
-possiblyTrue2 (res, ops) = possiblyTrue' 0 0 ops
-  where
-    possiblyTrue' acc curr [] = acc + curr == res || acc * curr == res
-    possiblyTrue' acc curr (x : xs)
-      | curr == 0 = (acc <= res && possiblyTrue' acc x xs) || (concated <= res && possiblyTrue' concated 0 xs)
+    possiblyTrue' target [] = target == 0
+    possiblyTrue' target (x : xs)
+      | target <= 0 = False
       | otherwise =
-          (acc + curr <= res && possiblyTrue' (acc + curr) 0 (x : xs))
-            || (acc * curr <= res && possiblyTrue' (acc * curr) 0 (x : xs))
-            || (concated <= res && possiblyTrue' acc concated xs)
+          possiblyTrue' (target - x) xs
+            || (target `rem` x == 0 && possiblyTrue' (target `div` x) xs)
+            || (p2 && target `rem` msk == x && possiblyTrue' (target `div` msk) xs)
       where
-        concated = read $ show acc ++ show x
+        msk = 10 ^ length (show x)
 
 part1 :: [Test] -> Integer
-part1 = sum . map fst . filter possiblyTrue
+part1 = sum . map fst . filter (possiblyTrue False)
 
 part2 :: [Test] -> Integer
-part2 = sum . map fst . filter possiblyTrue2
+part2 = sum . map fst . filter (possiblyTrue True)
